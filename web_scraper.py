@@ -2,10 +2,9 @@ from bs4 import BeautifulSoup
 import requests
 import os
 import pickle
-from datetime import datetime
 
 class Event:
-    def __init__(self, title: str, datetime: datetime, description: str):
+    def __init__(self, title: str, datetime: str, description: str):
         self.title = title
         self.datetime = datetime
         self.description = description
@@ -15,31 +14,6 @@ class Event:
 
     def __repr__(self) -> str:
         return f'{self.title}, {self.datetime}, {self.description}'
-
-    def __eq__(self, other):
-        if not isinstance(other, Event):
-            raise NotImplementedError
-        return self.datetime == other.datetime
-
-    def __lt__(self, other):
-        if not isinstance(other, Event):
-            raise NotImplementedError
-        return self.datetime < other.datetime
-
-    def __le__(self, other):
-        if not isinstance(other, Event):
-            raise NotImplementedError
-        return self.datetime <= other.datetime
-
-    def __gt__(self, other):
-        if not isinstance(other, Event):
-            raise NotImplementedError
-        return self.datetime > other.datetime
-
-    def __ge__(self, other):
-        if not isinstance(other, Event):
-            raise NotImplementedError
-        return self.datetime >= other.datetime
 
 found_events = set()
 
