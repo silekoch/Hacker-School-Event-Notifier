@@ -11,34 +11,34 @@ class Event:
         self.description = description
     
     def __str__(self) -> str:
-        return  f'{self.title}: {self.datetime}'
+        return  f'{self.datetime}: {self.title}'
 
     def __repr__(self) -> str:
         return f'{self.title}, {self.datetime}, {self.description}'
 
     def __eq__(self, other):
         if not isinstance(other, Event):
-            return NotImplemented
+            raise NotImplementedError
         return self.datetime == other.datetime
 
     def __lt__(self, other):
         if not isinstance(other, Event):
-            return NotImplemented
+            raise NotImplementedError
         return self.datetime < other.datetime
 
     def __le__(self, other):
         if not isinstance(other, Event):
-            return NotImplemented
+            raise NotImplementedError
         return self.datetime <= other.datetime
 
     def __gt__(self, other):
         if not isinstance(other, Event):
-            return NotImplemented
+            raise NotImplementedError
         return self.datetime > other.datetime
 
     def __ge__(self, other):
         if not isinstance(other, Event):
-            return NotImplemented
+            raise NotImplementedError
         return self.datetime >= other.datetime
 
 found_events = set()
