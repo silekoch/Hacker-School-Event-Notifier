@@ -14,6 +14,12 @@ class Event:
 
     def __repr__(self) -> str:
         return f'{self.title}, {self.datetime}, {self.description}'
+    
+    def __hash__(self) -> int:
+        return hash((self.title, self.datetime, self.description))
+    
+    def __eq__(self, other) -> bool:
+        return self.title == other.title and self.datetime == other.datetime and self.description == other.description
 
 found_events = set()
 
@@ -60,3 +66,6 @@ print('\n'.join([str(e) for e in new_events]))
 
 known_events = found_events
 
+# Store the known events to a file
+with open(known_events_file_path, 'wb') as file:
+    pickle.dump(known_events, file)
