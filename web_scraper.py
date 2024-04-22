@@ -16,6 +16,31 @@ class Event:
     def __repr__(self) -> str:
         return f'{self.title}, {self.datetime}, {self.description}'
 
+    def __eq__(self, other):
+        if not isinstance(other, Event):
+            return NotImplemented
+        return self.datetime == other.datetime
+
+    def __lt__(self, other):
+        if not isinstance(other, Event):
+            return NotImplemented
+        return self.datetime < other.datetime
+
+    def __le__(self, other):
+        if not isinstance(other, Event):
+            return NotImplemented
+        return self.datetime <= other.datetime
+
+    def __gt__(self, other):
+        if not isinstance(other, Event):
+            return NotImplemented
+        return self.datetime > other.datetime
+
+    def __ge__(self, other):
+        if not isinstance(other, Event):
+            return NotImplemented
+        return self.datetime >= other.datetime
+
 found_events = set()
 
 base_url = 'https://hacker-school.de/unterstuetzen/inspirer/checkin-inspirer-yourschool/?formats%5B0%5D=ys'
