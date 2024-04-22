@@ -21,12 +21,6 @@ class Event:
     def __eq__(self, other) -> bool:
         return self.title == other.title and self.datetime == other.datetime and self.description == other.description
 
-found_events = set()
-
-base_url = 'https://hacker-school.de/unterstuetzen/inspirer/checkin-inspirer-yourschool/?formats%5B0%5D=ys'
-response = requests.get(base_url)
-soup = BeautifulSoup(response.text, 'html.parser')
-
 def find_events_on_page(soup: BeautifulSoup) -> set:
     event_divs = soup.find_all('div', class_='hs-event')
     events = set()
@@ -38,34 +32,37 @@ def find_events_on_page(soup: BeautifulSoup) -> set:
         events.add(Event(title, date_and_time, course_description))
     return events
 
-pagination = soup.find('div', class_='hs-event-pagination')
-number_of_pages = int(pagination.find_all('li')[-2].text)
-
-for i in range(1, number_of_pages + 1):
-    page_url = base_url + f'&page={i}'
-    response = requests.get(page_url)
+def scrape_hs_website_for_events() -> set:
+    found_events = set()
+    base_url = 'https://hacker-school.de/unterstuetzen/inspirer/checkin-inspirer-yourschool/?formats%5B0%5D=ys'
+    response = requests.get(base_url)
     soup = BeautifulSoup(response.text, 'html.parser')
-    found_events.update(find_events_on_page(soup))
 
-# Initialize known_events as an empty set
-known_events = set()
+    pagination = soup.find('div', class_='hs-event-pagination')
+    number_of_pages = int(pagination.find_all('li')[-2].text)
 
-# File path where known events are stored
+    for i in range(1, number_of_pages + 1):
+        page_url = base_url + f'&page={i}'
+        response = requests.get(page_url)
+        soup = BeautifulSoup(response.text, 'html.parser')
+        found_events.update(find_events_on_page(soup))
+    
+    return found_events
+
+def load_events_from_file(file_path: str) -> set:
+    if os.path.exists(file_path):
+        with open(file_path, 'rb') as file:
+            return pickle.load(file)
+    return set()
+
+def save_events_to_file(events: set, file_path: str):
+    with open(file_path, 'wb') as file:
+        pickle.dump(events, file)
+
 known_events_file_path = 'data/known_events.pkl'
+known_events = load_events_from_file(known_events_file_path)
+found_events = scrape_hs_website_for_events()
 
-# Check if the file exists
-if os.path.exists(known_events_file_path):
-    # If the file exists, load the known events from the file
-    with open(known_events_file_path, 'rb') as file:
-        known_events = pickle.load(file)
+new_events = found_events - known_events
 
-new_events = found_events - known_events  # Find the difference between the found events and known events
-
-# Print the new events
-print('\n'.join([str(e) for e in new_events]))
-
-known_events = found_events
-
-# Store the known events to a file
-with open(known_events_file_path, 'wb') as file:
-    pickle.dump(known_events, file)
+save_events_to_file(found_events, known_events_file_path)
