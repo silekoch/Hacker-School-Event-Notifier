@@ -2,6 +2,7 @@ from bs4 import BeautifulSoup
 import requests
 import os
 import pickle
+import sys
 
 class Event:
     def __init__(self, title: str, datetime: str, description: str):
@@ -35,7 +36,7 @@ def find_events_on_page(soup: BeautifulSoup) -> set:
 def scrape_hs_website_for_events() -> set:
     found_events = set()
     base_url = 'https://hacker-school.de/unterstuetzen/inspirer/checkin-inspirer-yourschool/?formats%5B0%5D=ys'
-    response = requests.get(base_url)
+    response = requests.get(base_url, timeout=3)
     soup = BeautifulSoup(response.text, 'html.parser')
 
     pagination = soup.find('div', class_='hs-event-pagination')
@@ -43,7 +44,7 @@ def scrape_hs_website_for_events() -> set:
 
     for i in range(1, number_of_pages + 1):
         page_url = base_url + f'&page={i}'
-        response = requests.get(page_url)
+        response = requests.get(page_url, timeout=3)
         soup = BeautifulSoup(response.text, 'html.parser')
         found_events.update(find_events_on_page(soup))
     
@@ -59,10 +60,14 @@ def save_events_to_file(events: set, file_path: str):
     with open(file_path, 'wb') as file:
         pickle.dump(events, file)
 
-known_events_file_path = 'data/known_events.pkl'
-known_events = load_events_from_file(known_events_file_path)
-found_events = scrape_hs_website_for_events()
+if __name__ == "__main__":
+    known_events_file_path = 'data/known_events.pkl'
+    known_events = load_events_from_file(known_events_file_path)
+    
+    try:
+        found_events = scrape_hs_website_for_events()
+    except requests.exceptions.Timeout:
+        sys.exit("Request timed out. Aborted execution.")
 
-new_events = found_events - known_events
-
-save_events_to_file(found_events, known_events_file_path)
+    new_events = found_events - known_events
+    save_events_to_file(found_events, known_events_file_path)
